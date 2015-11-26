@@ -1,0 +1,76 @@
+body.slides {
+	background: black;
+}
+
+.gallery {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.item {
+	position: relative;
+	width: 210px;
+	height: 210px;
+}
+
+.item img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+}
+
+.item a {
+	text-decoration: none;
+	color: black;
+	text-align: center;
+	vertical-align: bottom;
+	z-index: -100;
+}
+
+.up-button {
+	margin-left: 10%;
+	margin-right: 10%;
+	width: 80%;
+}
+
+#close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: #333 none repeat scroll 0% 0%;
+	color: #FFF;
+}
+
+#back-button {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	height: 34px;
+	margin: auto;
+	background: #333 none repeat scroll 0% 0%;
+	color: #FFF;
+}
+
+#next-button {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	height: 34px;
+	margin: auto;
+	background: #333 none repeat scroll 0% 0%;
+	color: #FFF;
+}
+
+#slide {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+}
