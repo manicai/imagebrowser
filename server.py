@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import path
 import PIL.Image
 import tornado.ioloop
@@ -15,10 +16,10 @@ def filter_images(listing):
             or fn.fnmatch('*.jpeg', lambda x: x.lower())]
 
 class DirectoryThumbnailHandler(tornado.web.RequestHandler):
-    def get(self, path):
+    def get(self, dir_path):
         self.set_header('Content-Type', 'image/jpeg')
         base = PIL.Image.open('static/directory.jpg')
-        dirpath = root / path
+        dirpath = root / dir_path
         files = filter_images(dirpath.walkfiles())
         if len(files) == 0:
             base.save(self, 'JPEG')
@@ -38,8 +39,8 @@ class DirectoryThumbnailHandler(tornado.web.RequestHandler):
         base.save(self, 'JPEG')
 
 class ThumbnailHandler(tornado.web.RequestHandler):
-    def get(self, path):
-        filepath = root / path
+    def get(self, image_path):
+        filepath = root / image_path
         try:
             img = PIL.Image.open(filepath)
         except IOError:
@@ -51,8 +52,8 @@ class ThumbnailHandler(tornado.web.RequestHandler):
         img.save(self, 'JPEG')
 
 class SlideHandler(tornado.web.RequestHandler):
-    def get(self, path):
-        filepath = root / path
+    def get(self, image_path):
+        filepath = root / image_path
         try:
             img = PIL.Image.open(filepath)
         except IOError:
@@ -67,11 +68,11 @@ class SlideHandler(tornado.web.RequestHandler):
         img.save(self, 'JPEG')
 
 class IndexHandler(tornado.web.RequestHandler):
-    def get(self, path):
-        directory = root / path
+    def get(self, dir_path):
+        directory = root / dir_path
         if not directory.exists():
             self.send_error(404)
-            return 
+            return
 
         images = filter_images(directory.files())
         directories = [dn for dn in directory.dirs()
@@ -90,18 +91,18 @@ class SlideshowHandler(tornado.web.RequestHandler):
                          .generate(imgs=[str(i.basename()) for i in images],
                                    directory=str(directory)))
 
-def browser_app(debug = False, port = 8000, **kwargs):
+def browser_app(debug=False, **kwargs):
     handlers = [tornado.web.url('/list/?(.*)', IndexHandler),
                 tornado.web.url('/thumbnail/(.*)', ThumbnailHandler),
-                tornado.web.url('/dirthumbnail/(.*)', 
+                tornado.web.url('/dirthumbnail/(.*)',
                                 DirectoryThumbnailHandler),
-                tornado.web.url('/static/(.*)', 
-                                tornado.web.StaticFileHandler, 
+                tornado.web.url('/static/(.*)',
+                                tornado.web.StaticFileHandler,
                                 {'path': 'static'}),
                 tornado.web.url('/slideshow/(.*)', SlideshowHandler),
                 tornado.web.url('/slide/(.*)', SlideHandler),
-                tornado.web.url('/', 
-                                tornado.web.RedirectHandler, 
+                tornado.web.url('/',
+                                tornado.web.RedirectHandler,
                                 {"url": "/list/"}),]
     return tornado.web.Application(handlers, debug=debug, **kwargs)
 
@@ -110,7 +111,7 @@ def main():
     root = path.path(sys.argv[1])
     port = 8999
 
-    app = browser_app(debug=True, port=port)
+    app = browser_app(debug=True)
     app.listen(port, '0.0.0.0')
     tornado.ioloop.IOLoop.current().start()
 
