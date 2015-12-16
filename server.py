@@ -10,6 +10,18 @@ import sys
 root = path.path('.')
 loader = tornado.template.Loader('templates')
 
+class ImageCache(object):
+    def __init__(self):
+        self._cache = {}
+
+    def add(self, path, image):
+        self._cache[path] = image
+
+    def get(self, path):
+        return self._cache.get(path, None)
+
+cache = ImageCache()
+
 def filter_images(listing):
     return [fn.relpath(root) for fn in listing
             if fn.fnmatch('*.jpg', lambda x: x.lower())
@@ -40,32 +52,39 @@ class DirectoryThumbnailHandler(tornado.web.RequestHandler):
 
 class ThumbnailHandler(tornado.web.RequestHandler):
     def get(self, image_path):
-        filepath = root / image_path
-        try:
-            img = PIL.Image.open(filepath)
-        except IOError:
-            self.send_error(404)
-            return
+        image = cache.get(self.request.uri)
+        if not image:
+            filepath = root / image_path
+            try:
+                image = PIL.Image.open(filepath)
+            except IOError:
+                self.send_error(404)
+                return
 
-        img.thumbnail((200, 200))
+            image.thumbnail((200, 200))
+            cache.add(self.request.uri, image)
+
         self.set_header('Content-Type', 'image/jpeg')
-        img.save(self, 'JPEG')
+        image.save(self, 'JPEG')
 
 class SlideHandler(tornado.web.RequestHandler):
     def get(self, image_path):
-        filepath = root / image_path
-        try:
-            img = PIL.Image.open(filepath)
-        except IOError:
-            self.send_error(404)
-            return
+        image = cache.get(self.request.uri)
+        if not image:
+            filepath = root / image_path
+            try:
+                image = PIL.Image.open(filepath)
+            except IOError:
+                self.send_error(404)
+                return
 
-        width = int(self.get_argument('w'))
-        height = int(self.get_argument('h'))
-        img.thumbnail((width, height))
+            width = int(self.get_argument('w'))
+            height = int(self.get_argument('h'))
+            image.thumbnail((width, height))
+            cache.add(self.request.uri, image)
 
         self.set_header('Content-Type', 'image/jpeg')
-        img.save(self, 'JPEG')
+        image.save(self, 'JPEG')
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self, dir_path):
@@ -79,8 +98,8 @@ class IndexHandler(tornado.web.RequestHandler):
                        if not dn.basename().startswith('.')]
 
         self.write(loader.load('index.html') \
-                        .generate(files=images,
-                                  dirs=directories))
+                         .generate(files=images,
+                                   dirs=directories))
 
 class SlideshowHandler(tornado.web.RequestHandler):
     def get(self, dir_path):

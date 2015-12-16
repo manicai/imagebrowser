@@ -1,37 +1,58 @@
 $(document).ready(function() {
 
+function getPath(anchor) {
+    var path = '/slide/' + directory + '/' + anchor;
+    var width = jQuery(window).width();
+    var height = jQuery(window).height();
+    return path + '?w=' + width + '&h=' + height;
+}
+
 function updateSlide() {
 	var anchor = document.location.hash.substring(1);
-	var path = '/slide/' + directory + '/' + anchor;
-	var width = jQuery(window).width();
-	var height = jQuery(window).height()
-	$('#slide').attr('src', path + '?w=' + width + '&h=' + height);
+	$('img#slide').attr('src', getPath(anchor));
+}
+
+function updateCache(index) {
+    if (index > 0) {
+        var prev_anchor = images[index-1];
+        $('img#prev').attr('src', getPath(prev_anchor));
+    }
+
+    if (index < images.length - 1) {
+        var next_anchor = images[index+1];
+        $('img#next').attr('src', getPath(next_anchor));
+    }
 }
 
 function setIndex(index) {
+    if (index === -1) {
+        return;
+    }
+
  	var new_anchor = images[index];
 	document.location = '#' + new_anchor;
-	updateSlide();	
+	updateSlide();
+    updateCache(index);
 }
 
 function nextImage() {
 	var anchor = document.location.hash.substring(1);
 	var index = images.indexOf(anchor);
-	if (index == -1 || index >= images.length - 1) {
-		return false;
+	if (index === -1 || index >= images.length - 1) {
+		return -1;
 	}
 
-	setIndex(index + 1);
+	return index + 1;
 }
 
 function prevImage() {
 	var anchor = document.location.hash.substring(1);
 	var index = images.indexOf(anchor);
 	if (index <= 0) {
-		return false;
+		return -1;
 	}
 
-	setIndex(index - 1);	
+	return index - 1;
 }
 
 function exit() {
@@ -44,16 +65,16 @@ function toggleSlideshow() {
 	if (interval) {
 		clearInterval(interval);
 	} else {
-		interval = setInterval(nextImage, 2500);
+		interval = setInterval(function() { setIndex(nextImage()); }, 2500);
 	}
 }
 
 $('#back-button').click(function (evt) {
-	prevImage();
+	setIndex(prevImage());
 });
 
 $('#next-button').click(function (evt) {
-	nextImage();
+	setIndex(nextImage());
 });
 
 $('#closs-button').click(function (evt) {
@@ -80,7 +101,7 @@ $(document).keydown(function (evt) {
         default: return; // exit this handler for other keys
     }
 
-    evt.preventDefault(); 
+    evt.preventDefault();
 });
 
 updateSlide();
