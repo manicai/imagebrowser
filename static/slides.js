@@ -88,13 +88,13 @@ $(document).keydown(function (evt) {
     		toggleSlideshow();
     		break;
         case 37: // left
-        	prevImage();
+        	setIndex(prevImage());
         	break;
         case 38: // up
         	exit();
         	break;
         case 39: // right
-        	nextImage();
+        	setIndex(nextImage());
        		break;
         //case 40: // down
         //break;
