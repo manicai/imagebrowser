@@ -2,8 +2,8 @@ $(document).ready(function() {
 
 function getPath(anchor) {
     var path = '/slide/' + directory + '/' + anchor;
-    var width = jQuery(window).width();
-    var height = jQuery(window).height();
+    var width = jQuery(document).width();
+    var height = jQuery(document).height();
     return path + '?w=' + width + '&h=' + height;
 }
 
@@ -29,9 +29,9 @@ function setIndex(index) {
         return;
     }
 
- 	var new_anchor = images[index];
-	document.location = '#' + new_anchor;
-	updateSlide();
+    var new_anchor = images[index];
+    document.location = '#' + new_anchor;
+    updateSlide();
     updateCache(index);
 }
 
@@ -64,6 +64,7 @@ var interval = null;
 function toggleSlideshow() {
 	if (interval) {
 		clearInterval(interval);
+		interval = null;
 	} else {
 		interval = setInterval(function() { setIndex(nextImage()); }, 2500);
 	}
@@ -104,6 +105,14 @@ $(document).keydown(function (evt) {
     evt.preventDefault();
 });
 
+var hammertime = new Hammer($('img#slide')[0]);
+hammertime.on('swipe', function(ev) {
+    setIndex(nextImage());
+});
+hammertime.on('doubletap', function(ev) {
+    toggleSlideshow();
+});
+    
 updateSlide();
 });
 
