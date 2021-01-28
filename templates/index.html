@@ -1,29 +1,43 @@
 <html>
 <head>
 <link href="/static/pure-min.css" rel="stylesheet">
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <link href="/static/app.css" rel="stylesheet">
-<script src="/static/jquery-2.1.4.min.js"></script>
+<script src="/static/jquery-3.4.1.min.js"></script>
 <script type="text/javascript" src="/static/cycledirs.js"></script>
 </head>
 <body>
 <a class="pure-button up-button" href="..">Up</a>
 <div class="gallery">
-	{% for dir in dirs %}
-	<div class="item">
-		<a href="{{dir.basename()}}/">
-			<img class="dirimage" src="/dirthumbnail/{{dir}}" 
-				 title="{{dir.basename()}}" />
-		</a>
-	</div>
-	{% end %}
+    {% for dir in dirs %}
+    <div class="item">
+        <a href="{{dir.name}}/">
+            <img class="dirimage" src="/dirthumbnail/{{dir}}"
+                 title="{{dir.name}}" />
+        </a>
+    </div>
+    {% end %}
 
-	{% for file in files %}
-	<div class="item">
-		<a href="/slideshow/{{file.dirname()}}#{{file.basename()}}">
-		<img src="/thumbnail/{{file}}" />
-		</a>
-	</div>
-	{% end %}
+    {% for file in files %}
+    <div class="item">
+        <a href="/slideshow/{{file.parent}}#{{file.name}}">
+        <img src="/thumbnail/{{file}}" />
+        </a>
+    </div>
+    {% end %}
+
+    {% for movie in movies %}
+    <div class="item">
+        <div>
+            <a href="/player/{{movie.parent}}/{{movie.name}}">
+                <img src="/static/film-solid.svg" style="margin: 10px;"/>
+            </a>
+        </div>
+        <div>
+            <i style="text-align: center">{{ movie.name[:-4] }}</i>
+        </div>
+    </div>
+    {% end %}
 </div>
 
 </body>

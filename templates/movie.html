@@ -1,0 +1,17 @@
+<head>
+    <link href="/static/video-js.min.css" rel="stylesheet" />
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+        video {
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+  <video id="video" class="video-js" userActions.hotkeys="true" controls preload="auto" data-setup="{}">
+    <source src="/movie/{{video}}" type="video/mp4" />
+  </video>
+
+  <script src="/static/video.min.js"></script>
+</body
