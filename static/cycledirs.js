@@ -1,5 +1,9 @@
 
 function updateThumbnail() {
+    if (document.visibilityState !== "visible") {
+        return;
+    }
+
 	d = new Date();
 	$('.dirimage').each(function (i, el) {
 		src = el.src.split('?')[0]
