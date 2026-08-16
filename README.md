@@ -9,6 +9,11 @@ exits.
 To run: 
   $ server.py {image root dir}
 
+Directory thumbnail cache:
+- Directory thumbnails now use a sampled subset of images per directory and are cached on disk.
+- Cache location: {image root dir}/.directory-thumbnail-cache
+- To clear cached directory thumbnails, delete that folder on the server.
+
 Requires [Tornado Web Framework](http://www.tornadoweb.org/en/stable/),
 [Pillow image processing library](http://python-pillow.github.io/),
 [path.py](https://github.com/jaraco/path.py).

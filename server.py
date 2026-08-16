@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-import random
+import hashlib
+import json
 import sys
 import pathlib
 
@@ -10,6 +11,15 @@ import tornado.web
 
 root = pathlib.Path('.')
 loader = tornado.template.Loader('templates')
+
+DIRECTORY_THUMBNAIL_SAMPLE_RATIO = 0.10
+DIRECTORY_THUMBNAIL_CACHE_DIRNAME = '.directory-thumbnail-cache'
+DIRECTORY_THUMBNAIL_METADATA_DIRNAME = 'metadata'
+DIRECTORY_THUMBNAIL_IMAGES_DIRNAME = 'images'
+
+directory_thumbnail_cache_root = None
+directory_thumbnail_metadata_root = None
+directory_thumbnail_images_root = None
 
 
 class ImageCache(object):
@@ -25,6 +35,114 @@ class ImageCache(object):
 
 
 cache = ImageCache()
+
+
+def _ensure_directory_thumbnail_cache_dirs():
+    global directory_thumbnail_cache_root
+    global directory_thumbnail_metadata_root
+    global directory_thumbnail_images_root
+
+    if directory_thumbnail_cache_root is None:
+        directory_thumbnail_cache_root = root / DIRECTORY_THUMBNAIL_CACHE_DIRNAME
+        directory_thumbnail_metadata_root = (
+            directory_thumbnail_cache_root / DIRECTORY_THUMBNAIL_METADATA_DIRNAME
+        )
+        directory_thumbnail_images_root = (
+            directory_thumbnail_cache_root / DIRECTORY_THUMBNAIL_IMAGES_DIRNAME
+        )
+
+    directory_thumbnail_metadata_root.mkdir(parents=True, exist_ok=True)
+    directory_thumbnail_images_root.mkdir(parents=True, exist_ok=True)
+
+
+def _atomic_write_text(path: pathlib.Path, text: str):
+    tmp_path = path.with_name(path.name + '.tmp')
+    tmp_path.write_text(text, encoding='utf-8')
+    tmp_path.replace(path)
+
+
+def _dir_cache_key(dir_path: str):
+    normalized = pathlib.PurePosixPath(dir_path).as_posix()
+    if normalized in ('', '.'):
+        normalized = '__root__'
+    digest = hashlib.sha1(normalized.encode('utf-8')).hexdigest()
+    return normalized, digest
+
+
+def _dir_metadata_path(dir_key: str):
+    return directory_thumbnail_metadata_root / f'{dir_key}.json'
+
+
+def _dir_image_cache_path(dir_key: str, image_path: str):
+    image_digest = hashlib.sha1(image_path.encode('utf-8')).hexdigest()
+    return directory_thumbnail_images_root / f'{dir_key}-{image_digest}.jpg'
+
+
+def _evenly_sample(items, ratio):
+    if len(items) == 0:
+        return []
+
+    sample_size = max(1, int(len(items) * ratio))
+    sample_size = min(sample_size, len(items))
+    indices = {(i * len(items)) // sample_size for i in range(sample_size)}
+    return [items[i] for i in sorted(indices)]
+
+
+def _build_metadata_for_directory(directory: pathlib.Path, metadata_path: pathlib.Path):
+    files = filter_images(i for i in walk(directory) if i.is_file())
+    sampled = _evenly_sample(files, DIRECTORY_THUMBNAIL_SAMPLE_RATIO)
+    metadata = {
+        'sample_ratio': DIRECTORY_THUMBNAIL_SAMPLE_RATIO,
+        'images': [str(p) for p in sampled],
+        'next_index': 0,
+    }
+    _atomic_write_text(metadata_path, json.dumps(metadata, indent=2, sort_keys=True))
+    return metadata
+
+
+def _load_metadata(directory: pathlib.Path, metadata_path: pathlib.Path):
+    if metadata_path.exists():
+        try:
+            metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
+            images = metadata.get('images', [])
+            if isinstance(images, list) and len(images) > 0:
+                return metadata
+        except (OSError, json.JSONDecodeError):
+            pass
+    return _build_metadata_for_directory(directory, metadata_path)
+
+
+def _next_sampled_image(metadata: dict, metadata_path: pathlib.Path):
+    images = metadata.get('images', [])
+    if len(images) == 0:
+        return None
+
+    index = int(metadata.get('next_index', 0)) % len(images)
+    image_path = images[index]
+    metadata['next_index'] = (index + 1) % len(images)
+    _atomic_write_text(metadata_path, json.dumps(metadata, indent=2, sort_keys=True))
+    return image_path
+
+
+def _compose_directory_thumbnail(selected_image_relpath: str):
+    base = PIL.Image.open('static/directory.jpg')
+    try:
+        img = PIL.Image.open(root / selected_image_relpath)
+    except IOError:
+        return base
+
+    img.thumbnail((150, 150))
+    x_off = (base.width - img.width) // 2
+    y_off = (base.height - img.height) // 2
+    base.paste(img, (x_off, y_off))
+    return base
+
+
+def _save_thumbnail_image(path: pathlib.Path, image: PIL.Image.Image):
+    tmp_path = path.with_name(path.name + '.tmp')
+    with tmp_path.open('wb') as fh:
+        image.save(fh, 'JPEG')
+    tmp_path.replace(path)
 
 
 def filter_movies(listing):
@@ -56,23 +174,29 @@ class DirectoryThumbnailHandler(tornado.web.RequestHandler):
         self.set_header('Content-Type', 'image/png')
         base = PIL.Image.open('static/directory.png')
         directory = root / dir_path
-        files = filter_images(i for i in walk(directory) if i.is_file())
-        if len(files) == 0:
+        if not directory.exists() or not directory.is_dir():
+            self.send_error(404)
+            return
+
+        _, dir_key = _dir_cache_key(dir_path)
+        metadata_path = _dir_metadata_path(dir_key)
+        metadata = _load_metadata(directory, metadata_path)
+        selected = _next_sampled_image(metadata, metadata_path)
+        if selected is None:
+            base = PIL.Image.open('static/directory.jpg')
             base.save(self, 'PNG')
             return
 
-        filepath = random.choice(files)
-        try:
-            img = PIL.Image.open(root / filepath)
-        except IOError:
-            base.save(self, 'PNG')
+        cached_thumb_path = _dir_image_cache_path(dir_key, selected)
+        if cached_thumb_path.exists():
+            with cached_thumb_path.open('rb') as fh:
+                self.write(fh.read())
             return
 
-        img.thumbnail((150, 150))
-        x_off = (base.width - img.width) // 2
-        y_off = (base.height - img.height) // 2
-        base.paste(img, (x_off, y_off))
-        base.save(self, 'PNG')
+        composed = _compose_directory_thumbnail(selected)
+        if (root / selected).exists():
+            _save_thumbnail_image(cached_thumb_path, composed)
+        composed.save(self, 'PNG')
 
 class ThumbnailHandler(tornado.web.RequestHandler):
     def get(self, image_path: str):
@@ -179,7 +303,16 @@ def browser_app(debug=False, **kwargs):
 
 def main():
     global root
+    global directory_thumbnail_cache_root
+    global directory_thumbnail_metadata_root
+    global directory_thumbnail_images_root
+
     root = pathlib.Path(sys.argv[1])
+    directory_thumbnail_cache_root = None
+    directory_thumbnail_metadata_root = None
+    directory_thumbnail_images_root = None
+    _ensure_directory_thumbnail_cache_dirs()
+
     if len(sys.argv) > 2:
         port = int(sys.argv[2])
     else:
