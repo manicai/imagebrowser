@@ -186,6 +186,7 @@ def main():
         port = 8999
 
     app = browser_app(debug=True)
+    print(f"Serving {root} on 0.0.0.0:{port}")
     app.listen(port, '0.0.0.0')
     tornado.ioloop.IOLoop.current().start()
 
