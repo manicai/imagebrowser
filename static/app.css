@@ -68,8 +68,10 @@ body.slides {
 	position: absolute;
 	top: 0;
 	right: 0;
-	background: #333 none repeat scroll 0% 0%;
-	color: #FFF;
+	z-index: 20;
+	background: transparent;
+	border: none;
+	padding: 12px;
 }
 
 #back-button {
@@ -77,10 +79,12 @@ body.slides {
 	top: 0;
 	bottom: 0;
 	left: 0;
-	height: 34px;
+	z-index: 20;
+	height: 48px;
 	margin: auto;
-	background: #333 none repeat scroll 0% 0%;
-	color: #FFF;
+	background: transparent;
+	border: none;
+	padding: 12px;
 }
 
 #next-button {
@@ -88,10 +92,34 @@ body.slides {
 	top: 0;
 	bottom: 0;
 	right: 0;
-	height: 34px;
+	z-index: 20;
+	height: 48px;
 	margin: auto;
-	background: #333 none repeat scroll 0% 0%;
-	color: #FFF;
+	background: transparent;
+	border: none;
+	padding: 12px;
+}
+
+#close-button:focus,
+#back-button:focus,
+#next-button:focus {
+	outline: none;
+}
+
+.nav-icon {
+	display: block;
+	width: 24px;
+	height: 24px;
+	opacity: 0.5;
+}
+
+#close-button:hover .nav-icon,
+#back-button:hover .nav-icon,
+#next-button:hover .nav-icon,
+#close-button:focus .nav-icon,
+#back-button:focus .nav-icon,
+#next-button:focus .nav-icon {
+	opacity: 0.8;
 }
 
 #slide {
@@ -100,6 +128,7 @@ body.slides {
 	left: 0;
 	right: 0;
 	bottom: 0;
+	z-index: 10;
 	margin: auto;
 }
 

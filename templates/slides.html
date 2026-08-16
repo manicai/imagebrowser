@@ -9,10 +9,16 @@
 <script type="text/javascript" src="/static/slides.js"></script>
 </head>
 <body class="slides">
-<a class="pure-button" id="close-button" href="/list/{{directory}}/">X</a>
-<button class="pure-button" id="back-button">&lt;</button>
+<a class="pure-button" id="close-button" href="/list/{{directory}}/" aria-label="Close slideshow">
+<img class="nav-icon" src="/static/icons/close.svg" alt="Close" />
+</a>
+<button class="pure-button" id="back-button" aria-label="Previous image">
+<img class="nav-icon" src="/static/icons/chevron-left.svg" alt="Previous" />
+</button>
 <img id="slide" />
-<button class="pure-button" id="next-button">&gt;</button>
+<button class="pure-button" id="next-button" aria-label="Next image">
+<img class="nav-icon" src="/static/icons/chevron-right.svg" alt="Next" />
+</button>
 </div>
 
 <script type="text/javascript">
