@@ -19,10 +19,15 @@
 body {
 	background: var(--bg);
 	color: var(--fg);
+	/* Keep clear of the notch and status bar when run as a home screen app. */
+	padding: env(safe-area-inset-top) env(safe-area-inset-right)
+	         env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 body.slides {
 	background: black;
+	padding: 0;
+	overflow: hidden;
 }
 
 .pure-button {
@@ -66,17 +71,19 @@ body.slides {
 
 #close-button {
 	position: absolute;
-	top: 0;
-	right: 0;
+	z-index: 1;
+	top: env(safe-area-inset-top);
+	right: env(safe-area-inset-right);
 	background: #333 none repeat scroll 0% 0%;
 	color: #FFF;
 }
 
 #back-button {
 	position: absolute;
+	z-index: 1;
 	top: 0;
 	bottom: 0;
-	left: 0;
+	left: env(safe-area-inset-left);
 	height: 34px;
 	margin: auto;
 	background: #333 none repeat scroll 0% 0%;
@@ -85,9 +92,10 @@ body.slides {
 
 #next-button {
 	position: absolute;
+	z-index: 1;
 	top: 0;
 	bottom: 0;
-	right: 0;
+	right: env(safe-area-inset-right);
 	height: 34px;
 	margin: auto;
 	background: #333 none repeat scroll 0% 0%;
@@ -101,8 +109,24 @@ body.slides {
 	right: 0;
 	bottom: 0;
 	margin: auto;
+	/* Slides are fetched at device resolution; scale back to CSS pixels. */
+	max-width: 100%;
+	max-height: 100%;
 }
 
 div.cache {
     display: none;
+}
+
+/* Two thumbnails per row on phone-width screens. */
+@media (max-width: 460px) {
+	.item {
+		width: 50%;
+		height: 50vw;
+	}
+
+	.item img {
+		max-width: 95%;
+		max-height: 95%;
+	}
 }
