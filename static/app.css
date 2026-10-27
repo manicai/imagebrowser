@@ -1,5 +1,39 @@
+/* Follow the browser's light/dark preference. */
+:root {
+	color-scheme: light dark;
+	--bg: #fff;
+	--fg: #000;
+	--slides-bg: #fff;
+	--button-bg: #e6e6e6;
+	--button-fg: rgba(0, 0, 0, 0.8);
+	--overlay-bg: #ccc;
+	--overlay-fg: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #121212;
+		--fg: #e6e6e6;
+		--slides-bg: #000;
+		--button-bg: #333;
+		--button-fg: #e6e6e6;
+		--overlay-bg: #333;
+		--overlay-fg: #fff;
+	}
+}
+
+body {
+	background: var(--bg);
+	color: var(--fg);
+}
+
 body.slides {
-	background: black;
+	background: var(--slides-bg);
+}
+
+.pure-button {
+	background-color: var(--button-bg);
+	color: var(--button-fg);
 }
 
 .gallery {
@@ -24,7 +58,7 @@ body.slides {
 
 .item a {
 	text-decoration: none;
-	color: black;
+	color: var(--fg);
 	text-align: center;
 	vertical-align: bottom;
 	z-index: -100;
@@ -40,8 +74,8 @@ body.slides {
 	position: absolute;
 	top: 0;
 	right: 0;
-	background: #333 none repeat scroll 0% 0%;
-	color: #FFF;
+	background: var(--overlay-bg);
+	color: var(--overlay-fg);
 }
 
 #back-button {
@@ -51,8 +85,8 @@ body.slides {
 	left: 0;
 	height: 34px;
 	margin: auto;
-	background: #333 none repeat scroll 0% 0%;
-	color: #FFF;
+	background: var(--overlay-bg);
+	color: var(--overlay-fg);
 }
 
 #next-button {
@@ -62,8 +96,8 @@ body.slides {
 	right: 0;
 	height: 34px;
 	margin: auto;
-	background: #333 none repeat scroll 0% 0%;
-	color: #FFF;
+	background: var(--overlay-bg);
+	color: var(--overlay-fg);
 }
 
 #slide {
