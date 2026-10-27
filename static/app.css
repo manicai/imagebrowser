@@ -3,22 +3,16 @@
 	color-scheme: light dark;
 	--bg: #fff;
 	--fg: #000;
-	--slides-bg: #fff;
 	--button-bg: #e6e6e6;
 	--button-fg: rgba(0, 0, 0, 0.8);
-	--overlay-bg: #ccc;
-	--overlay-fg: #000;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root {
 		--bg: #121212;
 		--fg: #e6e6e6;
-		--slides-bg: #000;
 		--button-bg: #333;
 		--button-fg: #e6e6e6;
-		--overlay-bg: #333;
-		--overlay-fg: #fff;
 	}
 }
 
@@ -28,7 +22,7 @@ body {
 }
 
 body.slides {
-	background: var(--slides-bg);
+	background: black;
 }
 
 .pure-button {
@@ -74,8 +68,8 @@ body.slides {
 	position: absolute;
 	top: 0;
 	right: 0;
-	background: var(--overlay-bg);
-	color: var(--overlay-fg);
+	background: #333 none repeat scroll 0% 0%;
+	color: #FFF;
 }
 
 #back-button {
@@ -85,8 +79,8 @@ body.slides {
 	left: 0;
 	height: 34px;
 	margin: auto;
-	background: var(--overlay-bg);
-	color: var(--overlay-fg);
+	background: #333 none repeat scroll 0% 0%;
+	color: #FFF;
 }
 
 #next-button {
@@ -96,8 +90,8 @@ body.slides {
 	right: 0;
 	height: 34px;
 	margin: auto;
-	background: var(--overlay-bg);
-	color: var(--overlay-fg);
+	background: #333 none repeat scroll 0% 0%;
+	color: #FFF;
 }
 
 #slide {

@@ -29,26 +29,26 @@ def filter_images(listing):
 
 class DirectoryThumbnailHandler(tornado.web.RequestHandler):
     def get(self, dir_path):
-        self.set_header('Content-Type', 'image/jpeg')
-        base = PIL.Image.open('static/directory.jpg')
+        self.set_header('Content-Type', 'image/png')
+        base = PIL.Image.open('static/directory.png')
         dirpath = root / dir_path
         files = filter_images(dirpath.walkfiles())
         if len(files) == 0:
-            base.save(self, 'JPEG')
+            base.save(self, 'PNG')
             return
 
         filepath = random.choice(files)
         try:
             img = PIL.Image.open(root / filepath)
         except IOError:
-            base.save(self, 'JPEG')
+            base.save(self, 'PNG')
             return
 
         img.thumbnail((150, 150))
-        x_off = (base.width - img.width) / 2
-        y_off = (base.height - img.height) / 2
+        x_off = (base.width - img.width) // 2
+        y_off = (base.height - img.height) // 2
         base.paste(img, (x_off, y_off))
-        base.save(self, 'JPEG')
+        base.save(self, 'PNG')
 
 class ThumbnailHandler(tornado.web.RequestHandler):
     def get(self, image_path):
