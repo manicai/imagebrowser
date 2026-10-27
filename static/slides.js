@@ -2,8 +2,10 @@ $(document).ready(function() {
 
 function getPath(anchor) {
     var path = '/slide/' + directory + '/' + anchor;
-    var width = jQuery(window).width();
-    var height = jQuery(window).height();
+    // Request device pixels so slides are sharp on high-DPI screens.
+    var ratio = window.devicePixelRatio || 1;
+    var width = Math.round(jQuery(window).width() * ratio);
+    var height = Math.round(jQuery(window).height() * ratio);
     return path + '?w=' + width + '&h=' + height;
 }
 
