@@ -1,5 +1,33 @@
+/* Follow the browser's light/dark preference. */
+:root {
+	color-scheme: light dark;
+	--bg: #fff;
+	--fg: #000;
+	--button-bg: #e6e6e6;
+	--button-fg: rgba(0, 0, 0, 0.8);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #121212;
+		--fg: #e6e6e6;
+		--button-bg: #333;
+		--button-fg: #e6e6e6;
+	}
+}
+
+body {
+	background: var(--bg);
+	color: var(--fg);
+}
+
 body.slides {
 	background: black;
+}
+
+.pure-button {
+	background-color: var(--button-bg);
+	color: var(--button-fg);
 }
 
 .gallery {
@@ -24,7 +52,7 @@ body.slides {
 
 .item a {
 	text-decoration: none;
-	color: black;
+	color: var(--fg);
 	text-align: center;
 	vertical-align: bottom;
 	z-index: -100;
