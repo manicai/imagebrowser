@@ -75,7 +75,7 @@ def _dir_metadata_path(dir_key: str):
 
 def _dir_image_cache_path(dir_key: str, image_path: str):
     image_digest = hashlib.sha1(image_path.encode('utf-8')).hexdigest()
-    return directory_thumbnail_images_root / f'{dir_key}-{image_digest}.jpg'
+    return directory_thumbnail_images_root / f'{dir_key}-{image_digest}.png'
 
 
 def _evenly_sample(items, ratio):
@@ -125,7 +125,7 @@ def _next_sampled_image(metadata: dict, metadata_path: pathlib.Path):
 
 
 def _compose_directory_thumbnail(selected_image_relpath: str):
-    base = PIL.Image.open('static/directory.jpg')
+    base = PIL.Image.open('static/directory.png')
     try:
         img = PIL.Image.open(root / selected_image_relpath)
     except IOError:
@@ -141,7 +141,7 @@ def _compose_directory_thumbnail(selected_image_relpath: str):
 def _save_thumbnail_image(path: pathlib.Path, image: PIL.Image.Image):
     tmp_path = path.with_name(path.name + '.tmp')
     with tmp_path.open('wb') as fh:
-        image.save(fh, 'JPEG')
+        image.save(fh, 'PNG')
     tmp_path.replace(path)
 
 
@@ -172,7 +172,6 @@ def walk(p: pathlib.Path):
 class DirectoryThumbnailHandler(tornado.web.RequestHandler):
     def get(self, dir_path: str):
         self.set_header('Content-Type', 'image/png')
-        base = PIL.Image.open('static/directory.png')
         directory = root / dir_path
         if not directory.exists() or not directory.is_dir():
             self.send_error(404)
@@ -183,7 +182,7 @@ class DirectoryThumbnailHandler(tornado.web.RequestHandler):
         metadata = _load_metadata(directory, metadata_path)
         selected = _next_sampled_image(metadata, metadata_path)
         if selected is None:
-            base = PIL.Image.open('static/directory.jpg')
+            base = PIL.Image.open('static/directory.png')
             base.save(self, 'PNG')
             return
 
