@@ -264,19 +264,6 @@ class SlideshowHandler(tornado.web.RequestHandler):
                              directory=str(directory)))
 
 
-class MovieHandler(tornado.web.RequestHandler):
-    def get(self, path: str):
-        movie_path = root / path
-        self.set_header('Content-Type', 'video/mp4')
-        with open(movie_path, 'rb') as fh:
-            while True:
-                data = fh.read(64 * 1024)
-                if not data:
-                    break
-                self.write(data)
-        self.finish()
-
-
 class MoviePlayerHandler(tornado.web.RequestHandler):
     def get(self, path: str):
         self.write(loader.load('movie.html').generate(video=path))
@@ -287,7 +274,9 @@ def browser_app(debug=False, **kwargs):
                 tornado.web.url('/thumbnail/(.*)', ThumbnailHandler),
                 tornado.web.url('/dirthumbnail/(.*)',
                                 DirectoryThumbnailHandler),
-                tornado.web.url('/movie/(.*)', MovieHandler),
+                tornado.web.url('/movie/(.*)',
+                                tornado.web.StaticFileHandler,
+                                {'path': str(root)}),
                 tornado.web.url('/player/(.*)', MoviePlayerHandler),
                 tornado.web.url('/static/(.*)',
                                 tornado.web.StaticFileHandler,

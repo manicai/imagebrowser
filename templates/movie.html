@@ -1,17 +1,54 @@
+<!doctype html>
+<html>
 <head>
-    <link href="/static/video-js.min.css" rel="stylesheet" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: #000;
+        }
         video {
-            margin: 0 auto;
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            object-fit: contain;
         }
     </style>
 </head>
 
 <body>
-  <video id="video" class="video-js" userActions.hotkeys="true" controls preload="auto" data-setup="{}">
-    <source src="/movie/{{video}}" type="video/mp4" />
-  </video>
+  <video id="video" controls playsinline preload="metadata" src="/movie/{{video}}"></video>
 
-  <script src="/static/video.min.js"></script>
-</body
+  <script>
+    var video = document.getElementById('video');
+    document.addEventListener('keydown', function (e) {
+        if (e.target !== document.body && e.target !== video) return;
+        switch (e.key) {
+            case ' ':
+            case 'k':
+                video.paused ? video.play() : video.pause();
+                break;
+            case 'ArrowLeft':
+                video.currentTime = Math.max(0, video.currentTime - 5);
+                break;
+            case 'ArrowRight':
+                video.currentTime = video.currentTime + 5;
+                break;
+            case 'f':
+                document.fullscreenElement ? document.exitFullscreen() : video.requestFullscreen();
+                break;
+            case 'm':
+                video.muted = !video.muted;
+                break;
+            default:
+                return;
+        }
+        e.preventDefault();
+    });
+  </script>
+</body>
+</html>
