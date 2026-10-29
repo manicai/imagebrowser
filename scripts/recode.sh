@@ -13,7 +13,8 @@
 #     (which Safari plays back juddery) to constant
 #   - already a compatible NAME.mp4: left alone
 # The original is removed only after a successful conversion. The
-# modification time is carried over.
+# modification time is carried over. When run in a terminal a progress line
+# shows percent done, speed and time remaining.
 set -euo pipefail
 
 # Cap the long edge at 1920 so 4K becomes 1080p in landscape or portrait.
@@ -34,6 +35,37 @@ dry_run=false
 tmp=""
 cleanup() { if [[ -n "$tmp" ]]; then rm -f "$tmp"; fi; }
 trap cleanup EXIT
+
+# Run ffmpeg with the given arguments. $1 is the input duration in seconds;
+# when known and stderr is a terminal, show a progress line while it runs.
+run_ffmpeg() {
+    local duration=$1
+    shift
+    if [[ ! -t 2 || ! "$duration" =~ ^[0-9.]+$ ]]; then
+        ffmpeg -nostdin -v error -y "$@"
+        return
+    fi
+    ffmpeg -nostdin -v error -nostats -progress pipe:1 -y "$@" \
+        | awk -F= -v d="$duration" '
+            function hms(s) {
+                s = int(s)
+                return s >= 3600 ? sprintf("%d:%02d:%02d", s / 3600, s % 3600 / 60, s % 60) \
+                                 : sprintf("%d:%02d", s / 60, s % 60)
+            }
+            $1 == "out_time_us" && $2 ~ /^[0-9]+$/ { t = $2 / 1e6 }
+            $1 == "speed" { sp = $2; sub(/x$/, "", sp) }
+            $1 == "progress" {
+                if (t > d) t = d
+                line = sprintf("  %3d%%  %s / %s", 100 * t / d, hms(t), hms(d))
+                # The speed figure from ffmpeg is erratic for the first moments.
+                if (sp + 0 > 0 && t >= 2)
+                    line = line sprintf("  %.1fx  ETA %s", sp, hms((d - t) / sp))
+                printf "\r\033[K%s", line > "/dev/stderr"
+                fflush("/dev/stderr")
+            }
+            END { printf "\r\033[K" > "/dev/stderr" }'
+    return "${PIPESTATUS[0]}"
+}
 
 # Succeed if the first video stream of $1 has irregular frame timing. The
 # per-packet duration field is no use (muxers often write a constant one), so
@@ -109,23 +141,26 @@ plan() {
 recode() {
     local input=$1
     local output="${input%.*}.mp4"
-    local action fps
+    local progress=$2
+    local action fps duration
 
     if [[ ! -f "$input" ]]; then
-        echo "recode: $input: no such file" >&2
+        echo "recode $progress: $input: no such file" >&2
         return 1
     fi
     if [[ -e "$output" && ! "$output" -ef "$input" ]]; then
-        echo "recode: $output already exists, skipping $input" >&2
+        echo "recode $progress: $output already exists, skipping $input" >&2
         return 1
     fi
 
-    echo -n "recode: $input: " >&2
+    echo -n "recode $progress: $input: " >&2
     read -r action fps < <(plan "$input" "$output") || return 1
     if [[ "$action" == skip ]] || $dry_run; then
         [[ "$action" != skip ]] && echo "recode: would $action $input -> $output"
         return 0
     fi
+
+    duration=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$input" || true)
 
     # Temp file next to the output so the final mv is an atomic rename.
     tmp=$(mktemp -p "$(dirname "$output")" --suffix=.mp4 .recode.XXXXXX)
@@ -134,15 +169,15 @@ recode() {
     # step explicitly.
     local ok=true
     if [[ "$action" == remux ]]; then
-        ffmpeg -v error -y -i "$input" -map 0:v:0 -map '0:a?' -c copy \
+        run_ffmpeg "$duration" -i "$input" -map 0:v:0 -map '0:a?' -c copy \
             -movflags +faststart "$tmp" || ok=false
     elif [[ "$action" == audio ]]; then
-        ffmpeg -v error -y -i "$input" -map 0:v:0 -map '0:a?' -c:v copy \
+        run_ffmpeg "$duration" -i "$input" -map 0:v:0 -map '0:a?' -c:v copy \
             -c:a aac -b:a 192k -movflags +faststart "$tmp" || ok=false
     else
         local filter=$VIDEO_FILTER
         [[ "$fps" != - ]] && filter+=",fps=$fps"
-        ffmpeg -v error -y -i "$input" -map 0:v:0 -map '0:a?' \
+        run_ffmpeg "$duration" -i "$input" -map 0:v:0 -map '0:a?' \
             -vf "$filter" -c:v libx264 -preset slow -crf "$CRF" \
             -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart \
             "$tmp" || ok=false
@@ -174,7 +209,9 @@ if [[ $# -eq 0 ]]; then
 fi
 
 status=0
+i=0
 for f in "$@"; do
-    recode "$f" || status=1
+    i=$((i + 1))
+    recode "$f" "[$i/$#]" || status=1
 done
 exit $status
