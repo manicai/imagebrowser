@@ -61,14 +61,6 @@ function exit() {
 
 var interval = null;
 
-function updatePlayButton() {
-	var playing = interval !== null;
-	$('#play-button').attr('aria-label', playing ? 'Pause slideshow' : 'Play slideshow');
-	$('#play-button img')
-		.attr('src', playing ? '/static/icons/pause.svg' : '/static/icons/play.svg')
-		.attr('alt', playing ? 'Pause' : 'Play');
-}
-
 function toggleSlideshow() {
 	if (interval) {
 		clearInterval(interval);
@@ -76,13 +68,7 @@ function toggleSlideshow() {
 	} else {
 		interval = setInterval(function() { setIndex(nextImage()); }, 2500);
 	}
-	updatePlayButton();
 }
-
-$('#play-button').click(function (evt) {
-	toggleSlideshow();
-	this.blur(); // keep space bar from also "clicking" the focused button
-});
 
 $('#back-button').click(function (evt) {
 	setIndex(prevImage());
