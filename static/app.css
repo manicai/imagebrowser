@@ -69,11 +69,12 @@ body.slides {
 
 #close-button {
 	position: absolute;
-	top: 0;
-	right: 0;
+	top: 8px;
+	right: 8px;
 	z-index: 20;
-	background: transparent;
+	background: rgba(0, 0, 0, 0.5);
 	border: none;
+	border-radius: 50%;
 	padding: 12px;
 }
 
@@ -81,12 +82,13 @@ body.slides {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	left: 0;
+	left: 8px;
 	z-index: 20;
 	height: 72px;
 	margin: auto;
-	background: transparent;
+	background: rgba(0, 0, 0, 0.5);
 	border: none;
+	border-radius: 50%;
 	padding: 12px;
 }
 
@@ -94,23 +96,25 @@ body.slides {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	right: 0;
+	right: 8px;
 	z-index: 20;
 	height: 72px;
 	margin: auto;
-	background: transparent;
+	background: rgba(0, 0, 0, 0.5);
 	border: none;
+	border-radius: 50%;
 	padding: 12px;
 }
 
 #play-button {
 	position: absolute;
-	bottom: 0;
+	bottom: 8px;
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 20;
-	background: transparent;
+	background: rgba(0, 0, 0, 0.5);
 	border: none;
+	border-radius: 50%;
 	padding: 12px;
 }
 
@@ -125,7 +129,7 @@ body.slides {
 	display: block;
 	width: 48px;
 	height: 48px;
-	opacity: 0.5;
+	opacity: 0.8;
 }
 
 #close-button:hover .nav-icon,
@@ -136,7 +140,7 @@ body.slides {
 #back-button:focus .nav-icon,
 #next-button:focus .nav-icon,
 #play-button:focus .nav-icon {
-	opacity: 0.8;
+	opacity: 1;
 }
 
 #slide {

@@ -92,7 +92,8 @@ $('#next-button').click(function (evt) {
 	setIndex(nextImage());
 });
 
-$('#closs-button').click(function (evt) {
+$('#close-button').click(function (evt) {
+	evt.preventDefault(); // exit() navigates; don't let the link navigate too
 	exit();
 });
 
