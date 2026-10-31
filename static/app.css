@@ -86,10 +86,11 @@ body.slides {
 	z-index: 20;
 	height: 72px;
 	margin: auto;
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.1);
 	border: none;
 	border-radius: 50%;
 	padding: 12px;
+	opacity: 40%;
 }
 
 #next-button {
@@ -100,10 +101,11 @@ body.slides {
 	z-index: 20;
 	height: 72px;
 	margin: auto;
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.1);
 	border: none;
 	border-radius: 50%;
 	padding: 12px;
+	opacity: 40%;
 }
 
 #play-button {
@@ -112,10 +114,11 @@ body.slides {
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 20;
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.1);
 	border: none;
 	border-radius: 50%;
 	padding: 12px;
+	opacity: 40%;
 }
 
 #close-button:focus,
