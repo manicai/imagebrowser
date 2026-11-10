@@ -146,8 +146,14 @@ def _save_thumbnail_image(path: pathlib.Path, image: PIL.Image.Image):
 
 
 def filter_movies(listing):
-    return sorted([fn.relative_to(root) for fn in listing
-                   if fn.match('*.mp4') or fn.match('*.avi') or fn.match('*.webm')])
+    files = sorted([fn.relative_to(root) for fn in listing
+                    if fn.match('*.mp4') or fn.match('*.avi') or fn.match('*.webm')])
+    class MovieLink:
+        def __init__(self, path):
+            self.path = path
+            self.name = path.stem.replace('_', ' ').replace('-', ' ')
+            self.parent = path.parent
+    return [MovieLink(f) for f in files]    
 
 
 def filter_images(listing):
