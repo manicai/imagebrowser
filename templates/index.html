@@ -1,5 +1,8 @@
+<!doctype html>
 <html>
 <head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="/static/pure-min.css" rel="stylesheet">
 <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <link href="/static/app.css" rel="stylesheet">
@@ -36,6 +39,15 @@
         <div>
             <i style="text-align: center">{{ movie.name }}</i>
         </div>
+    </div>
+    {% end %}
+
+    {% for doc in docs %}
+    <div class="item">
+        <a class="doc-link" href="/doc/{{doc.path}}">
+            <img src="/static/document.svg" alt="" />
+            <span>{{ doc.name }}</span>
+        </a>
     </div>
     {% end %}
 </div>

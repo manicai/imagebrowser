@@ -4,6 +4,7 @@ import json
 import sys
 import pathlib
 
+import markdown
 import PIL.Image
 import tornado.ioloop
 import tornado.template
@@ -156,6 +157,20 @@ def filter_movies(listing):
     return [MovieLink(f) for f in files]    
 
 
+MARKDOWN_SUFFIXES = ('.md', '.markdown')
+
+
+def filter_markdown(listing):
+    files = sorted([fn.relative_to(root) for fn in listing
+                    if fn.suffix.lower() in MARKDOWN_SUFFIXES],
+                   key=lambda p: p.name.casefold())
+    class DocLink:
+        def __init__(self, path):
+            self.path = path
+            self.name = path.stem.replace('_', ' ').replace('-', ' ')
+    return [DocLink(f) for f in files]
+
+
 def filter_images(listing):
     return sorted([fn.relative_to(root) for fn in listing
                    if fn.match('*.jpg') or fn.match('*.JPG')
@@ -250,6 +265,7 @@ class IndexHandler(tornado.web.RequestHandler):
 
         images = filter_images(f for f in directory.iterdir() if f.is_file())
         movies = filter_movies(f for f in directory.iterdir() if f.is_file())
+        docs = filter_markdown(f for f in directory.iterdir() if f.is_file())
         directories = sorted([dn for dn in directory.iterdir()
                               if dn.is_dir() and not dn.name.startswith('.')],
                              key=lambda p: p.name.casefold())
@@ -257,6 +273,7 @@ class IndexHandler(tornado.web.RequestHandler):
         self.write(loader.load('index.html') \
                    .generate(files=images,
                              movies=movies,
+                             docs=docs,
                              dirs=directories))
 
 
@@ -275,6 +292,24 @@ class MoviePlayerHandler(tornado.web.RequestHandler):
         self.write(loader.load('movie.html').generate(video=path))
 
 
+class MarkdownHandler(tornado.web.RequestHandler):
+    def get(self, path: str):
+        base = root.resolve()
+        filepath = (root / path).resolve()
+        if not filepath.is_relative_to(base) or not filepath.is_file():
+            self.send_error(404)
+            return
+
+        text = filepath.read_text(encoding='utf-8', errors='replace')
+        md = markdown.Markdown(extensions=['extra', 'sane_lists', 'toc'])
+        body = md.convert(text)
+        title = next((t['name'] for t in md.toc_tokens), filepath.stem)
+        parent = pathlib.PurePosixPath(path).parent.as_posix()
+        parent = '' if parent == '.' else parent + '/'
+        self.write(loader.load('markdown.html')
+                   .generate(title=title, body=body, parent=parent))
+
+
 def browser_app(debug=False, **kwargs):
     handlers = [tornado.web.url('/list/?(.*)', IndexHandler),
                 tornado.web.url('/thumbnail/(.*)', ThumbnailHandler),
@@ -284,6 +319,13 @@ def browser_app(debug=False, **kwargs):
                                 tornado.web.StaticFileHandler,
                                 {'path': str(root)}),
                 tornado.web.url('/player/(.*)', MoviePlayerHandler),
+                # Markdown is rendered; anything else under /doc/ (e.g.
+                # images referenced relatively from a document) is served raw.
+                tornado.web.url(r'/doc/(.*\.(?i:md|markdown))',
+                                MarkdownHandler),
+                tornado.web.url('/doc/(.*)',
+                                tornado.web.StaticFileHandler,
+                                {'path': str(root)}),
                 tornado.web.url('/static/(.*)',
                                 tornado.web.StaticFileHandler,
                                 {'path': 'static'}),

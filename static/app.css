@@ -159,3 +159,143 @@ body.slides {
 div.cache {
     display: none;
 }
+
+/* Markdown documents: listing tile. */
+.item a.doc-link {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 8px;
+	z-index: auto;
+}
+
+.item a.doc-link img {
+	position: static;
+	width: 96px;
+	height: 128px;
+}
+
+.item a.doc-link span {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-style: italic;
+}
+
+/* Markdown documents: reading page. Full width on phones, a single
+   comfortably narrow column on wider screens. */
+body.doc-page {
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, sans-serif;
+	font-size: 1.0625rem;
+	line-height: 1.6;
+	-webkit-text-size-adjust: 100%;
+}
+
+.doc-nav,
+.doc {
+	box-sizing: border-box;
+	max-width: 44rem;
+	margin: 0 auto;
+	padding: 0 1rem;
+}
+
+.doc-nav {
+	padding-top: 1rem;
+}
+
+.doc-nav a,
+.doc a {
+	color: #2f6fcf;
+}
+
+@media (prefers-color-scheme: dark) {
+	.doc-nav a,
+	.doc a {
+		color: #7aaefc;
+	}
+}
+
+.doc {
+	padding-bottom: 3rem;
+	overflow-wrap: break-word;
+}
+
+.doc h1, .doc h2, .doc h3, .doc h4 {
+	line-height: 1.25;
+	margin: 1.6em 0 0.5em;
+}
+
+.doc h1 { font-size: 1.9rem; margin-top: 0.8em; }
+.doc h2 { font-size: 1.45rem; }
+.doc h3 { font-size: 1.2rem; }
+
+.doc img {
+	max-width: 100%;
+	height: auto;
+}
+
+.doc pre,
+.doc code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.9em;
+	background: rgba(127, 127, 127, 0.12);
+	border-radius: 4px;
+}
+
+.doc code {
+	padding: 0.1em 0.3em;
+}
+
+.doc pre {
+	padding: 0.8em 1em;
+	overflow-x: auto;
+	line-height: 1.45;
+}
+
+.doc pre code {
+	padding: 0;
+	background: none;
+	font-size: inherit;
+}
+
+.doc blockquote {
+	margin: 1em 0;
+	padding: 0 1em;
+	border-left: 4px solid rgba(127, 127, 127, 0.4);
+	opacity: 0.85;
+}
+
+.doc table {
+	display: block;
+	overflow-x: auto;
+	border-collapse: collapse;
+}
+
+.doc th,
+.doc td {
+	padding: 0.4em 0.8em;
+	border: 1px solid rgba(127, 127, 127, 0.35);
+}
+
+.doc hr {
+	border: none;
+	border-top: 1px solid rgba(127, 127, 127, 0.35);
+	margin: 2em 0;
+}
+
+@media (min-width: 48rem) {
+	.doc-nav,
+	.doc {
+		padding: 0 2rem;
+	}
+	.doc-nav {
+		padding-top: 1.5rem;
+	}
+}

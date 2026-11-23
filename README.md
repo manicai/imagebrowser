@@ -22,6 +22,12 @@ Videos:
   remuxed losslessly; the rest are re-encoded with x264. `-n` is a dry run.
   Needs ffmpeg (built with libx264) and ffprobe.
 
+Markdown:
+- .md and .markdown files are listed with a document icon and rendered as a
+  readable single-column page (full width on phones). Images and links
+  relative to the document work.
+
 Requires [Tornado Web Framework](http://www.tornadoweb.org/en/stable/),
 [Pillow image processing library](http://python-pillow.github.io/),
-[path.py](https://github.com/jaraco/path.py).
+[path.py](https://github.com/jaraco/path.py),
+[Python-Markdown](https://python-markdown.github.io/).
