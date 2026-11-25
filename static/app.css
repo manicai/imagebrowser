@@ -50,20 +50,6 @@ body.slides {
 	margin: auto;
 }
 
-/* Phones: three tiles per row, scaling thumbnails to fit. */
-@media (max-width: 47.99rem) {
-	.item {
-		width: 33.3333%;
-		height: auto;
-		aspect-ratio: 1;
-	}
-
-	.item img {
-		max-width: 100%;
-		max-height: 100%;
-	}
-}
-
 .item a {
 	text-decoration: none;
 	color: var(--fg);
@@ -311,5 +297,68 @@ body.doc-page {
 	}
 	.doc-nav {
 		padding-top: 1.5rem;
+	}
+}
+
+/* Phones: three tiles per row, scaling thumbnails to fit. */
+@media (max-width: 47.99rem) {
+	.item {
+		width: 33.3333%;
+		height: auto;
+		aspect-ratio: 1;
+	}
+
+	.item img {
+		max-width: 100%;
+		max-height: 100%;
+	}
+
+	/* Movies and documents all share one icon, so their names matter:
+	   stack icon above a small, wrapping, two-line name. */
+	.item.movie {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 4px;
+		padding: 4px;
+		box-sizing: border-box;
+	}
+
+	.item.movie a {
+		display: block;
+		line-height: 0;
+	}
+
+	.item.movie img {
+		position: static;
+		width: 60px;
+		margin: 0 !important;
+	}
+
+	.item.movie i,
+	.item a.doc-link span {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		overflow: hidden;
+		max-width: 100%;
+		font-size: 0.75rem;
+		line-height: 1.2;
+		text-align: center;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	.item a.doc-link {
+		gap: 4px;
+		padding: 4px;
+	}
+
+	.item a.doc-link img {
+		width: 44%;
+		height: auto;
+		max-height: none;
 	}
 }
